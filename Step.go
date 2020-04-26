@@ -19,7 +19,8 @@ type Step struct {
 	PriorStep     []string `json:"priorStep"`
 	NextStep      []string `json:"nextStep"`
 	JobSh         []Job    `json:"jobSh"`
-	Prior, Next   string
+	Prior         string   `json:"-"` // ignore to json
+	Next          string   `json:"-"` // ignore to json
 	stepType      string
 	stepArgs      []string
 }
@@ -181,6 +182,7 @@ func (step *Step) CreateBatchJob(workDir, pipeline, script string) (jobs []Job) 
 		workDir, "shell",
 		strings.Join([]string{step.Name, "sh"}, "."),
 	)
+	jobs = append(jobs, job)
 
 	var args = []string{workDir, pipeline}
 	for _, arg := range step.stepArgs {
