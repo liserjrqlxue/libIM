@@ -42,7 +42,7 @@ func NewStep(item map[string]string) (step Step) {
 func (step *Step) CreateJobs(
 	FamilyMap map[string]FamilyInfo, infoMap map[string]Info, trioInfo map[string]bool, workDir, pipeline string) {
 	// script format: pipeline/script/stepName.sh
-	var script = filepath.Join(pipeline, "script", step.Name, ".sh")
+	var script = filepath.Join(pipeline, "script", strings.Join([]string{step.Name, "sh"}, "."))
 	var jobs []Job
 
 	switch step.stepType {
