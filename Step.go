@@ -19,7 +19,7 @@ type Step struct {
 	PriorStep     []string `json:"priorStep"`
 	NextStep      []string `json:"nextStep"`
 	JobSh         []Job    `json:"jobSh"`
-	prior, next   string
+	Prior, Next   string
 	stepType      string
 	stepArgs      []string
 }
@@ -32,8 +32,8 @@ func NewStep(item map[string]string) (step Step) {
 	step.Memory = stringsUtil.Atoi(item["mem"])
 	step.PriorStep = []string{}
 	step.NextStep = []string{}
-	step.prior = item["prior"]
-	step.next = item["next"]
+	step.Prior = item["prior"]
+	step.Next = item["next"]
 	step.stepType = item["type"]
 	step.stepArgs = strings.Split(item["args"], ",")
 	return
