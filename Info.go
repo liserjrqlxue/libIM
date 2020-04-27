@@ -7,6 +7,8 @@ type LaneInfo struct {
 }
 type Info struct {
 	SampleID     string
+	Fq1          string
+	Fq2          string
 	ChipCode     string
 	Type         string
 	Gender       string
