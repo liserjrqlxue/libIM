@@ -31,10 +31,13 @@ func NewStep(item map[string]string) Step {
 		ComputingFlag: "cpu",
 		Threads:       stringsUtil.Atoi(item["thread"]),
 		Memory:        stringsUtil.Atoi(item["mem"]),
-		Prior:         item["prior"],
-		Next:          item["next"],
-		stepType:      item["type"],
-		stepArgs:      strings.Split(item["args"], ","),
+		// keep priorStep and nextStep [] instead null
+		PriorStep: []string{},
+		NextStep:  []string{},
+		Prior:     item["prior"],
+		Next:      item["next"],
+		stepType:  item["type"],
+		stepArgs:  strings.Split(item["args"], ","),
 	}
 }
 
