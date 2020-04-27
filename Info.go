@@ -27,18 +27,18 @@ type FamilyInfo struct {
 	FamilyMap map[string]string
 }
 
-func NewInfo(item map[string]string) (info Info) {
-	info = Info{}
-	info.SampleID = item["main_sample_num"]
-	info.ChipCode = item["chip_code"]
-	info.Gender = item["gender"]
-	info.ProductCode = item["product_code"]
-	info.ProductType = item["probuctType"]
-	info.ProbandID = item["proband_number"]
-	info.HPO = item["HPO"]
-	info.StandardTag = item["isStandardSample"]
-	info.StandardQC = item["StandardQC"]
-	info.RelationShip = item["relationship"]
-	info.QChistory = item["QChistory"]
-	return
+func NewInfo(item map[string]string) Info {
+	return Info{
+		SampleID:     item["main_sample_num"],
+		ChipCode:     item["chip_code"],
+		Gender:       item["gender"],
+		ProductCode:  item["product_code"],
+		ProductType:  item["probuctType"],
+		ProbandID:    item["proband_number"],
+		HPO:          item["HPO"],
+		StandardTag:  item["isStandardSample"],
+		StandardQC:   item["StandardQC"],
+		RelationShip: item["relationship"],
+		QChistory:    item["QChistory"],
+	}
 }

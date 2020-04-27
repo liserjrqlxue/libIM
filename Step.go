@@ -25,8 +25,8 @@ type Step struct {
 	stepArgs      []string
 }
 
-func NewStep(item map[string]string) (step Step) {
-	step = Step{
+func NewStep(item map[string]string) Step {
+	return Step{
 		Name:          item["name"],
 		ComputingFlag: "cpu",
 		Threads:       stringsUtil.Atoi(item["thread"]),
@@ -36,9 +36,6 @@ func NewStep(item map[string]string) (step Step) {
 		stepType:      item["type"],
 		stepArgs:      strings.Split(item["args"], ","),
 	}
-	//step.PriorStep = []string{}
-	//step.NextStep = []string{}
-	return
 }
 
 func (step *Step) CreateJobs(
