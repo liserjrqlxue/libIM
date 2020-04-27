@@ -26,17 +26,18 @@ type Step struct {
 }
 
 func NewStep(item map[string]string) (step Step) {
-	step = Step{}
-	step.Name = item["name"]
-	step.ComputingFlag = "cpu"
-	step.Threads = stringsUtil.Atoi(item["thread"])
-	step.Memory = stringsUtil.Atoi(item["mem"])
-	step.PriorStep = []string{}
-	step.NextStep = []string{}
-	step.Prior = item["prior"]
-	step.Next = item["next"]
-	step.stepType = item["type"]
-	step.stepArgs = strings.Split(item["args"], ",")
+	step = Step{
+		Name:          item["name"],
+		ComputingFlag: "cpu",
+		Threads:       stringsUtil.Atoi(item["thread"]),
+		Memory:        stringsUtil.Atoi(item["mem"]),
+		Prior:         item["prior"],
+		Next:          item["next"],
+		stepType:      item["type"],
+		stepArgs:      strings.Split(item["args"], ","),
+	}
+	//step.PriorStep = []string{}
+	//step.NextStep = []string{}
 	return
 }
 
