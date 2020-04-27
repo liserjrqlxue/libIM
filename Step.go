@@ -163,7 +163,7 @@ func (step *Step) CreateTrioJob(info Info, familyInfo FamilyInfo, workDir, pipel
 	for _, arg := range step.stepArgs {
 		switch arg {
 		case "list":
-			for _, relationShip := range []string{"proband", "father", "mother"} {
+			for _, relationShip := range Trio {
 				args = append(args, familyInfo.FamilyMap[relationShip])
 			}
 		case "HPO":
