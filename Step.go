@@ -41,6 +41,18 @@ func NewStep(item map[string]string) Step {
 	}
 }
 
+func LinkSteps(stepMap map[string]*Step) {
+	for stepName, step := range stepMap {
+		for _, prior := range strings.Split(step.Prior, ",") {
+			priorStep, ok := stepMap[prior]
+			if ok {
+				step.PriorStep = append(step.PriorStep, prior)
+				priorStep.NextStep = append(priorStep.NextStep, stepName)
+			}
+		}
+	}
+}
+
 func (step *Step) CreateJobs(
 	FamilyMap map[string]FamilyInfo, infoMap map[string]Info, trioInfo map[string]bool, workDir, pipeline string) {
 	// script format: pipeline/script/stepName.sh
