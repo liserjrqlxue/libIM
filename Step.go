@@ -91,7 +91,7 @@ func (step *Step) CreateLaneJobs(
 		for _, lane := range info.LaneInfos {
 			c++
 			var job = step.CreateLaneJob(lane, workDir, pipeline, script, sampleID)
-			step.jobMap[job.id] = &job
+			step.jobMap[job.Id] = &job
 			step.JobSh = append(step.JobSh, &job)
 		}
 	}
@@ -106,8 +106,8 @@ func (step *Step) CreateLaneJob(lane LaneInfo, workDir, pipeline, script, sample
 		),
 		step.Memory,
 	)
-	job.step = step
-	job.id = sampleID + ":" + lane.LaneName
+	job.Step = step
+	job.Id = sampleID + ":" + lane.LaneName
 
 	var args = []string{workDir, pipeline, sampleID}
 	for _, arg := range step.stepArgs {
@@ -132,7 +132,7 @@ func (step *Step) CreateSingleJobs(
 		}
 		c++
 		var job = step.CreateSampleJob(info, workDir, pipeline, script, sampleID)
-		step.jobMap[job.id] = &job
+		step.jobMap[job.Id] = &job
 		step.JobSh = append(step.JobSh, &job)
 	}
 	return
@@ -143,7 +143,7 @@ func (step *Step) CreateSampleJobs(
 	for sampleID, info := range infoMap {
 		c++
 		var job = step.CreateSampleJob(info, workDir, pipeline, script, sampleID)
-		step.jobMap[job.id] = &job
+		step.jobMap[job.Id] = &job
 		step.JobSh = append(step.JobSh, &job)
 	}
 	return
@@ -157,8 +157,8 @@ func (step *Step) CreateSampleJob(info Info, workDir, pipeline, script, sampleID
 		),
 		step.Memory,
 	)
-	job.step = step
-	job.id = sampleID
+	job.Step = step
+	job.Id = sampleID
 
 	var args = []string{workDir, pipeline, sampleID}
 	for _, arg := range step.stepArgs {
@@ -190,7 +190,7 @@ func (step *Step) CreateTrioJobs(
 	for probandID, familyInfo := range familyInfoMap {
 		c++
 		var job = step.CreateTrioJob(infoMap[probandID], familyInfo, workDir, pipeline, script, probandID)
-		step.jobMap[job.id] = &job
+		step.jobMap[job.Id] = &job
 		step.JobSh = append(step.JobSh, &job)
 	}
 	return
@@ -204,8 +204,8 @@ func (step *Step) CreateTrioJob(info Info, familyInfo FamilyInfo, workDir, pipel
 		),
 		step.Memory,
 	)
-	job.step = step
-	job.id = sampleID
+	job.Step = step
+	job.Id = sampleID
 
 	var args = []string{workDir, pipeline}
 	for _, arg := range step.stepArgs {
@@ -232,8 +232,8 @@ func (step *Step) CreateBatchJob(workDir, pipeline, script string) (c int) {
 		),
 		step.Memory,
 	)
-	job.step = step
-	job.id = step.Name
+	job.Step = step
+	job.Id = step.Name
 
 	var args = []string{workDir, pipeline}
 	for _, arg := range step.stepArgs {
@@ -245,7 +245,7 @@ func (step *Step) CreateBatchJob(workDir, pipeline, script string) (c int) {
 	CreateShell(job.Sh, script, args...)
 
 	c++
-	step.jobMap[job.id] = &job
+	step.jobMap[job.Id] = &job
 	step.JobSh = append(step.JobSh, &job)
 	return
 }
