@@ -85,14 +85,15 @@ func (step *Step) CreateLaneJobs(infoMap map[string]Info, workDir, pipeline, scr
 }
 
 func (step *Step) CreateLaneJob(lane LaneInfo, workDir, pipeline, script, sampleID string) Job {
-	var job = NewJob(step.Memory)
-	var args = []string{workDir, pipeline, sampleID}
-
-	job.Sh = filepath.Join(
-		workDir, sampleID, "shell",
-		strings.Join([]string{step.Name, lane.LaneName, "sh"}, "."),
+	var job = NewJob(
+		filepath.Join(
+			workDir, sampleID, "shell",
+			strings.Join([]string{step.Name, lane.LaneName, "sh"}, "."),
+		),
+		step.Memory,
 	)
 
+	var args = []string{workDir, pipeline, sampleID}
 	for _, arg := range step.stepArgs {
 		switch arg {
 		case "laneName":
@@ -126,10 +127,12 @@ func (step *Step) CreateSampleJobs(infoMap map[string]Info, workDir, pipeline, s
 }
 
 func (step *Step) CreateSampleJob(info Info, workDir, pipeline, script, sampleID string) Job {
-	var job = NewJob(step.Memory)
-	job.Sh = filepath.Join(
-		workDir, sampleID, "shell",
-		strings.Join([]string{step.Name, "sh"}, "."),
+	var job = NewJob(
+		filepath.Join(
+			workDir, sampleID, "shell",
+			strings.Join([]string{step.Name, "sh"}, "."),
+		),
+		step.Memory,
 	)
 
 	var args = []string{workDir, pipeline, sampleID}
@@ -166,10 +169,12 @@ func (step *Step) CreateTrioJobs(
 }
 
 func (step *Step) CreateTrioJob(info Info, familyInfo FamilyInfo, workDir, pipeline, script, sampleID string) Job {
-	var job = NewJob(step.Memory)
-	job.Sh = filepath.Join(
-		workDir, sampleID, "shell",
-		strings.Join([]string{step.Name, "sh"}, "."),
+	var job = NewJob(
+		filepath.Join(
+			workDir, sampleID, "shell",
+			strings.Join([]string{step.Name, "sh"}, "."),
+		),
+		step.Memory,
 	)
 
 	var args = []string{workDir, pipeline}
@@ -190,10 +195,12 @@ func (step *Step) CreateTrioJob(info Info, familyInfo FamilyInfo, workDir, pipel
 }
 
 func (step *Step) CreateBatchJob(workDir, pipeline, script string) (jobs []Job) {
-	var job = NewJob(step.Memory)
-	job.Sh = filepath.Join(
-		workDir, "shell",
-		strings.Join([]string{step.Name, "sh"}, "."),
+	var job = NewJob(
+		filepath.Join(
+			workDir, "shell",
+			strings.Join([]string{step.Name, "sh"}, "."),
+		),
+		step.Memory,
 	)
 	jobs = append(jobs, job)
 

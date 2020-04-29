@@ -6,9 +6,10 @@ type Job struct {
 	Sh            string `json:"sh"`
 }
 
-func NewJob(mem int) (job Job) {
-	job = Job{}
-	job.Mem = mem
-	job.ComputingFlag = "cpu"
-	return
+func NewJob(sh string, mem int) Job {
+	return Job{
+		Mem:           mem,
+		ComputingFlag: "cpu",
+		Sh:            sh,
+	}
 }
