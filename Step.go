@@ -23,6 +23,8 @@ type Step struct {
 	prior         string          `json:"-"` // ignore to json
 	next          string          `json:"-"` // ignore to json
 	stepType      string
+	priorStep     []*Step
+	nextStep      []*Step
 	stepArgs      []string
 }
 
@@ -49,8 +51,15 @@ func LinkSteps(stepMap map[string]*Step) {
 			priorStep, ok := stepMap[prior]
 			if ok {
 				step.PriorStep = append(step.PriorStep, prior)
+				step.priorStep = append(step.priorStep, priorStep)
 				priorStep.NextStep = append(priorStep.NextStep, stepName)
+				priorStep.nextStep = append(priorStep.nextStep, step)
 			}
+		}
+	}
+	for _, step := range stepMap {
+		for _, job := range step.jobMap {
+			job.CreateWaitChan()
 		}
 	}
 }
@@ -82,7 +91,7 @@ func (step *Step) CreateLaneJobs(
 		for _, lane := range info.LaneInfos {
 			c++
 			var job = step.CreateLaneJob(lane, workDir, pipeline, script, sampleID)
-			step.jobMap[sampleID+":"+lane.LaneName] = &job
+			step.jobMap[job.id] = &job
 			step.JobSh = append(step.JobSh, &job)
 		}
 	}
@@ -97,6 +106,8 @@ func (step *Step) CreateLaneJob(lane LaneInfo, workDir, pipeline, script, sample
 		),
 		step.Memory,
 	)
+	job.step = step
+	job.id = sampleID + ":" + lane.LaneName
 
 	var args = []string{workDir, pipeline, sampleID}
 	for _, arg := range step.stepArgs {
@@ -121,7 +132,7 @@ func (step *Step) CreateSingleJobs(
 		}
 		c++
 		var job = step.CreateSampleJob(info, workDir, pipeline, script, sampleID)
-		step.jobMap[sampleID] = &job
+		step.jobMap[job.id] = &job
 		step.JobSh = append(step.JobSh, &job)
 	}
 	return
@@ -132,7 +143,7 @@ func (step *Step) CreateSampleJobs(
 	for sampleID, info := range infoMap {
 		c++
 		var job = step.CreateSampleJob(info, workDir, pipeline, script, sampleID)
-		step.jobMap[sampleID] = &job
+		step.jobMap[job.id] = &job
 		step.JobSh = append(step.JobSh, &job)
 	}
 	return
@@ -146,6 +157,8 @@ func (step *Step) CreateSampleJob(info Info, workDir, pipeline, script, sampleID
 		),
 		step.Memory,
 	)
+	job.step = step
+	job.id = sampleID
 
 	var args = []string{workDir, pipeline, sampleID}
 	for _, arg := range step.stepArgs {
@@ -177,7 +190,7 @@ func (step *Step) CreateTrioJobs(
 	for probandID, familyInfo := range familyInfoMap {
 		c++
 		var job = step.CreateTrioJob(infoMap[probandID], familyInfo, workDir, pipeline, script, probandID)
-		step.jobMap[probandID] = &job
+		step.jobMap[job.id] = &job
 		step.JobSh = append(step.JobSh, &job)
 	}
 	return
@@ -191,6 +204,8 @@ func (step *Step) CreateTrioJob(info Info, familyInfo FamilyInfo, workDir, pipel
 		),
 		step.Memory,
 	)
+	job.step = step
+	job.id = sampleID
 
 	var args = []string{workDir, pipeline}
 	for _, arg := range step.stepArgs {
@@ -217,6 +232,8 @@ func (step *Step) CreateBatchJob(workDir, pipeline, script string) (c int) {
 		),
 		step.Memory,
 	)
+	job.step = step
+	job.id = step.Name
 
 	var args = []string{workDir, pipeline}
 	for _, arg := range step.stepArgs {
@@ -228,7 +245,7 @@ func (step *Step) CreateBatchJob(workDir, pipeline, script string) (c int) {
 	CreateShell(job.Sh, script, args...)
 
 	c++
+	step.jobMap[job.id] = &job
 	step.JobSh = append(step.JobSh, &job)
-	step.jobMap[step.Name] = &job
 	return
 }
