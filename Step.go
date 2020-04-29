@@ -39,6 +39,7 @@ func NewStep(item map[string]string) Step {
 		Next:      item["next"],
 		stepType:  item["type"],
 		stepArgs:  strings.Split(item["args"], ","),
+		JobMap:    make(map[string]*Job),
 	}
 }
 
