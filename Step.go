@@ -26,6 +26,7 @@ type Step struct {
 	priorStep     []*Step
 	nextStep      []*Step
 	stepArgs      []string
+	submitArgs    []string
 }
 
 func NewStep(item map[string]string) Step {
@@ -35,13 +36,14 @@ func NewStep(item map[string]string) Step {
 		Threads:       stringsUtil.Atoi(item["thread"]),
 		Memory:        stringsUtil.Atoi(item["mem"]),
 		// keep priorStep and nextStep [] instead null
-		PriorStep: []string{},
-		NextStep:  []string{},
-		prior:     item["prior"],
-		next:      item["next"],
-		stepType:  item["type"],
-		stepArgs:  strings.Split(item["args"], ","),
-		jobMap:    make(map[string]*Job),
+		PriorStep:  []string{},
+		NextStep:   []string{},
+		prior:      item["prior"],
+		next:       item["next"],
+		stepType:   item["type"],
+		stepArgs:   strings.Split(item["args"], ","),
+		submitArgs: strings.Split(item["submitArgs"], " "),
+		jobMap:     make(map[string]*Job),
 	}
 }
 
