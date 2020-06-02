@@ -11,6 +11,7 @@ type Job struct {
 	Step          *Step                              `json:"-"`
 	Id            string                             `json:"-"`
 	waitChan      map[string]map[string]*chan string // Step.Name->Job.Id->chan
+	SubmitArgs    string
 }
 
 func NewJob(sh string, mem int) Job {
