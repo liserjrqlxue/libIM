@@ -1,27 +1,30 @@
 package libIM
 
 import (
+	"log"
 	"path/filepath"
 	"strings"
 
+	"github.com/liserjrqlxue/goUtil/osUtil"
 	"github.com/liserjrqlxue/goUtil/stringsUtil"
 )
 
 type Step struct {
-	Name          string          `json:"name"`
-	First         int             `json:"first"`
-	StepFlag      int             `json:"stepFlag"`
-	ComputingFlag string          `json:"computingFlag"`
-	Memory        int             `json:"memory"`
-	Threads       int             `json:"threads"`
-	Timeout       int             `json:"timeout"`
-	ModuleIndex   int             `json:"moduleIndex"`
-	PriorStep     []string        `json:"priorStep"`
-	NextStep      []string        `json:"nextStep"`
-	JobSh         []*Job          `json:"jobSh"`
-	jobMap        map[string]*Job `json:"-"`
-	prior         string          `json:"-"` // ignore to json
-	next          string          `json:"-"` // ignore to json
+	Name          string   `json:"name"`
+	First         int      `json:"first"`
+	StepFlag      int      `json:"stepFlag"`
+	ComputingFlag string   `json:"computingFlag"`
+	Memory        int      `json:"memory"`
+	Threads       int      `json:"threads"`
+	Timeout       int      `json:"timeout"`
+	ModuleIndex   int      `json:"moduleIndex"`
+	PriorStep     []string `json:"priorStep"`
+	NextStep      []string `json:"nextStep"`
+	JobSh         []*Job   `json:"jobSh"`
+	script        string
+	jobMap        map[string]*Job
+	prior         string
+	next          string
 	stepType      string
 	priorStep     []*Step
 	nextStep      []*Step
@@ -40,6 +43,7 @@ func NewStep(item map[string]string) Step {
 		NextStep:   []string{},
 		prior:      item["prior"],
 		next:       item["next"],
+		script:     item["script"],
 		stepType:   item["type"],
 		stepArgs:   strings.Split(item["args"], ","),
 		submitArgs: strings.Split(item["submitArgs"], " "),
@@ -69,30 +73,37 @@ func LinkSteps(stepMap map[string]*Step) {
 func (step *Step) CreateJobs(
 	FamilyMap map[string]FamilyInfo, infoMap map[string]Info, trioInfo map[string]bool, workDir, pipeline string) (c int) {
 	// script format: pipeline/script/stepName.sh
-	var script = filepath.Join(pipeline, "script", strings.Join([]string{step.Name, "sh"}, "."))
+	if step.script == "" {
+		step.script = filepath.Join(pipeline, "script", strings.Join([]string{step.Name, "sh"}, "."))
+	} else if !osUtil.FileExists(step.script) {
+		step.script = filepath.Join(pipeline, "script", step.script)
+	}
+	if !osUtil.FileExists(step.script) {
+		log.Fatalf("can not find [%s] script:[%s]\n", step.Name, step.script)
+	}
 
 	switch step.stepType {
 	case "lane":
-		return step.CreateLaneJobs(infoMap, workDir, pipeline, script)
+		return step.CreateLaneJobs(infoMap, workDir, pipeline)
 	case "sample":
-		return step.CreateSampleJobs(infoMap, workDir, pipeline, script)
+		return step.CreateSampleJobs(infoMap, workDir, pipeline)
 	case "single":
-		return step.CreateSingleJobs(infoMap, trioInfo, workDir, pipeline, script)
+		return step.CreateSingleJobs(infoMap, trioInfo, workDir, pipeline)
 	case "trio":
-		return step.CreateTrioJobs(infoMap, FamilyMap, workDir, pipeline, script)
+		return step.CreateTrioJobs(infoMap, FamilyMap, workDir, pipeline)
 	case "batch":
-		return step.CreateBatchJob(workDir, pipeline, script)
+		return step.CreateBatchJob(workDir, pipeline)
 	default:
 		return
 	}
 }
 
 func (step *Step) CreateLaneJobs(
-	infoMap map[string]Info, workDir, pipeline, script string) (c int) {
+	infoMap map[string]Info, workDir, pipeline string) (c int) {
 	for sampleID, info := range infoMap {
 		for _, lane := range info.LaneInfos {
 			c++
-			var job = step.CreateLaneJob(lane, workDir, pipeline, script, sampleID)
+			var job = step.CreateLaneJob(lane, workDir, pipeline, sampleID)
 			job.SubmitArgs = step.submitArgs
 			step.jobMap[job.Id] = &job
 			step.JobSh = append(step.JobSh, &job)
@@ -101,7 +112,7 @@ func (step *Step) CreateLaneJobs(
 	return
 }
 
-func (step *Step) CreateLaneJob(lane LaneInfo, workDir, pipeline, script, sampleID string) Job {
+func (step *Step) CreateLaneJob(lane LaneInfo, workDir, pipeline, sampleID string) Job {
 	var job = NewJob(
 		filepath.Join(
 			workDir, sampleID, "shell",
@@ -124,18 +135,18 @@ func (step *Step) CreateLaneJob(lane LaneInfo, workDir, pipeline, script, sample
 			args = append(args, lane.Fq2)
 		}
 	}
-	CreateShell(job.Sh, script, args...)
+	CreateShell(job.Sh, step.script, args...)
 	return job
 }
 
 func (step *Step) CreateSingleJobs(
-	infoMap map[string]Info, trioInfo map[string]bool, workDir, pipeline, script string) (c int) {
+	infoMap map[string]Info, trioInfo map[string]bool, workDir, pipeline string) (c int) {
 	for sampleID, info := range infoMap {
 		if trioInfo[info.ProductCode] {
 			continue
 		}
 		c++
-		var job = step.CreateSampleJob(info, workDir, pipeline, script, sampleID)
+		var job = step.CreateSampleJob(info, workDir, pipeline, sampleID)
 		job.SubmitArgs = step.submitArgs
 		step.jobMap[job.Id] = &job
 		step.JobSh = append(step.JobSh, &job)
@@ -144,10 +155,10 @@ func (step *Step) CreateSingleJobs(
 }
 
 func (step *Step) CreateSampleJobs(
-	infoMap map[string]Info, workDir, pipeline, script string) (c int) {
+	infoMap map[string]Info, workDir, pipeline string) (c int) {
 	for sampleID, info := range infoMap {
 		c++
-		var job = step.CreateSampleJob(info, workDir, pipeline, script, sampleID)
+		var job = step.CreateSampleJob(info, workDir, pipeline, sampleID)
 		job.SubmitArgs = step.submitArgs
 		step.jobMap[job.Id] = &job
 		step.JobSh = append(step.JobSh, &job)
@@ -155,7 +166,7 @@ func (step *Step) CreateSampleJobs(
 	return
 }
 
-func (step *Step) CreateSampleJob(info Info, workDir, pipeline, script, sampleID string) Job {
+func (step *Step) CreateSampleJob(info Info, workDir, pipeline, sampleID string) Job {
 	var job = NewJob(
 		filepath.Join(
 			workDir, sampleID, "shell",
@@ -188,15 +199,15 @@ func (step *Step) CreateSampleJob(info Info, workDir, pipeline, script, sampleID
 			args = append(args, info.ChipCode)
 		}
 	}
-	CreateShell(job.Sh, script, args...)
+	CreateShell(job.Sh, step.script, args...)
 	return job
 }
 
 func (step *Step) CreateTrioJobs(
-	infoMap map[string]Info, familyInfoMap map[string]FamilyInfo, workDir, pipeline, script string) (c int) {
+	infoMap map[string]Info, familyInfoMap map[string]FamilyInfo, workDir, pipeline string) (c int) {
 	for probandID, familyInfo := range familyInfoMap {
 		c++
-		var job = step.CreateTrioJob(infoMap[probandID], familyInfo, workDir, pipeline, script, probandID)
+		var job = step.CreateTrioJob(infoMap[probandID], familyInfo, workDir, pipeline, probandID)
 		job.SubmitArgs = step.submitArgs
 		step.jobMap[job.Id] = &job
 		step.JobSh = append(step.JobSh, &job)
@@ -204,7 +215,7 @@ func (step *Step) CreateTrioJobs(
 	return
 }
 
-func (step *Step) CreateTrioJob(info Info, familyInfo FamilyInfo, workDir, pipeline, script, sampleID string) Job {
+func (step *Step) CreateTrioJob(info Info, familyInfo FamilyInfo, workDir, pipeline, sampleID string) Job {
 	var job = NewJob(
 		filepath.Join(
 			workDir, sampleID, "shell",
@@ -229,11 +240,11 @@ func (step *Step) CreateTrioJob(info Info, familyInfo FamilyInfo, workDir, pipel
 			args = append(args, info.ProductCode)
 		}
 	}
-	CreateShell(job.Sh, script, args...)
+	CreateShell(job.Sh, step.script, args...)
 	return job
 }
 
-func (step *Step) CreateBatchJob(workDir, pipeline, script string) (c int) {
+func (step *Step) CreateBatchJob(workDir, pipeline string) (c int) {
 	var job = NewJob(
 		filepath.Join(
 			workDir, "shell",
@@ -252,7 +263,7 @@ func (step *Step) CreateBatchJob(workDir, pipeline, script string) (c int) {
 			args = append(args, LaneInput)
 		}
 	}
-	CreateShell(job.Sh, script, args...)
+	CreateShell(job.Sh, step.script, args...)
 
 	c++
 	step.jobMap[job.Id] = &job
