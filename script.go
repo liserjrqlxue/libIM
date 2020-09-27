@@ -9,13 +9,18 @@ import (
 )
 
 var ScriptHeader = `#!/bin/bash
-#$ -e $0.e
-#$ -o $0.o
+set -e
+#$ -cwd
+`
+
+var ScriptFooter = `if [ "$?" != "0" ]; then
+exit 100
+fi
 `
 
 func CreateShell(fileName, script string, args ...string) {
 	var file = osUtil.Create(fileName)
 	defer simpleUtil.DeferClose(file)
 
-	fmtUtil.Fprintf(file, "%ssh %s %s\n", ScriptHeader, script, strings.Join(args, " "))
+	fmtUtil.Fprintf(file, "%s\nsh %s %s\n%s", ScriptHeader, script, strings.Join(args, " "), ScriptFooter)
 }
