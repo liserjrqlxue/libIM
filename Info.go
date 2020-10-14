@@ -6,6 +6,8 @@ type LaneInfo struct {
 	Fq2      string `json:"fastq2"`
 }
 type Info struct {
+	Raw map[string]string
+
 	SampleID     string
 	Fq1          string
 	Fq2          string
@@ -20,8 +22,9 @@ type Info struct {
 	StandardTag  string
 	StandardQC   string
 	QChistory    string
-	LaneInfos    []LaneInfo
-	FamilyInfo   map[string][]string
+
+	LaneInfos  []LaneInfo
+	FamilyInfo map[string][]string
 }
 
 type FamilyInfo struct {

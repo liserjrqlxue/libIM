@@ -185,6 +185,14 @@ func (step *Step) CreateSampleJob(info Info, workDir, pipeline, sampleID string)
 			for _, lane := range info.LaneInfos {
 				args = append(args, lane.LaneName)
 			}
+		case "fq1":
+			for _, lane := range info.LaneInfos {
+				args = append(args, lane.Fq1)
+			}
+		case "fq2":
+			for _, lane := range info.LaneInfos {
+				args = append(args, lane.Fq2)
+			}
 		case "gender":
 			args = append(args, info.Gender)
 		case "HPO":
@@ -197,6 +205,8 @@ func (step *Step) CreateSampleJob(info Info, workDir, pipeline, sampleID string)
 			args = append(args, info.QChistory)
 		case "chip_code":
 			args = append(args, info.ChipCode)
+		default:
+			args = append(args, info.Raw[arg])
 		}
 	}
 	CreateShell(job.Sh, step.script, args...)
