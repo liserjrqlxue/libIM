@@ -22,5 +22,5 @@ func CreateShell(fileName, script string, args ...string) {
 	var file = osUtil.Create(fileName)
 	defer simpleUtil.DeferClose(file)
 
-	fmtUtil.Fprintf(file, "%s\nsh %s %s\n%s", ScriptHeader, script, strings.Join(args, " "), ScriptFooter)
+	fmtUtil.Fprintf(file, "%s\nsh %s \"%s\"\n%s", ScriptHeader, script, strings.Join(args, "\" \""), ScriptFooter)
 }
