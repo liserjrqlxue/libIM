@@ -74,9 +74,9 @@ func (step *Step) CreateJobs(
 	FamilyMap map[string]FamilyInfo, infoMap map[string]Info, trioInfo map[string]bool, workDir, pipeline string) (c int) {
 	// script format: pipeline/script/stepName.sh
 	if step.script == "" {
-		step.script = filepath.Join(pipeline, "script", strings.Join([]string{step.Name, "sh"}, "."))
-	} else if !osUtil.FileExists(step.script) {
-		step.script = filepath.Join(pipeline, "script", step.script)
+		step.script = strings.Join([]string{filepath.Join(pipeline, "script/script"), step.Name + ".sh"}, " ")
+	} else {
+		step.script = strings.Join([]string{filepath.Join(pipeline, "script/script"), step.script}, " ")
 	}
 	if !osUtil.FileExists(step.script) {
 		log.Fatalf("can not find [%s] script:[%s]\n", step.Name, step.script)
