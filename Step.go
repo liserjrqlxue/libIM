@@ -1,11 +1,9 @@
 package libIM
 
 import (
-	"log"
 	"path/filepath"
 	"strings"
 
-	"github.com/liserjrqlxue/goUtil/osUtil"
 	"github.com/liserjrqlxue/goUtil/stringsUtil"
 )
 
@@ -77,9 +75,6 @@ func (step *Step) CreateJobs(
 		step.script = strings.Join([]string{filepath.Join(pipeline, "script/script"), step.Name + ".sh"}, " ")
 	} else {
 		step.script = strings.Join([]string{filepath.Join(pipeline, "script/script"), step.script}, " ")
-	}
-	if !osUtil.FileExists(step.script) {
-		log.Fatalf("can not find [%s] script:[%s]\n", step.Name, step.script)
 	}
 
 	switch step.stepType {
