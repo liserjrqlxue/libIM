@@ -71,7 +71,7 @@ func LinkSteps(stepMap map[string]*Step) {
 }
 
 func (step *Step) CreateJobs(
-	FamilyMap map[string]FamilyInfo, infoMap map[string]Info, trioInfo map[string]bool, workDir, pipeline string) (c int) {
+	FamilyMap map[string]FamilyInfo, infoMap map[string]*Info, trioInfo map[string]bool, workDir, pipeline string) (c int) {
 	// script format: pipeline/script/stepName.sh
 	if step.script == "" {
 		step.script = filepath.Join(pipeline, "script", strings.Join([]string{step.Name, "sh"}, "."))
@@ -99,7 +99,7 @@ func (step *Step) CreateJobs(
 }
 
 func (step *Step) CreateLaneJobs(
-	infoMap map[string]Info, workDir, pipeline string) (c int) {
+	infoMap map[string]*Info, workDir, pipeline string) (c int) {
 	for sampleID, info := range infoMap {
 		for _, lane := range info.LaneInfos {
 			c++
@@ -140,7 +140,7 @@ func (step *Step) CreateLaneJob(lane LaneInfo, workDir, pipeline, sampleID strin
 }
 
 func (step *Step) CreateSingleJobs(
-	infoMap map[string]Info, trioInfo map[string]bool, workDir, pipeline string) (c int) {
+	infoMap map[string]*Info, trioInfo map[string]bool, workDir, pipeline string) (c int) {
 	for sampleID, info := range infoMap {
 		if trioInfo[info.ProductCode] {
 			continue
@@ -155,7 +155,7 @@ func (step *Step) CreateSingleJobs(
 }
 
 func (step *Step) CreateSampleJobs(
-	infoMap map[string]Info, workDir, pipeline string) (c int) {
+	infoMap map[string]*Info, workDir, pipeline string) (c int) {
 	for sampleID, info := range infoMap {
 		c++
 		var job = step.CreateSampleJob(info, workDir, pipeline, sampleID)
@@ -166,7 +166,7 @@ func (step *Step) CreateSampleJobs(
 	return
 }
 
-func (step *Step) CreateSampleJob(info Info, workDir, pipeline, sampleID string) Job {
+func (step *Step) CreateSampleJob(info *Info, workDir, pipeline, sampleID string) Job {
 	var job = NewJob(
 		filepath.Join(
 			workDir, sampleID, "shell",
@@ -214,7 +214,7 @@ func (step *Step) CreateSampleJob(info Info, workDir, pipeline, sampleID string)
 }
 
 func (step *Step) CreateTrioJobs(
-	infoMap map[string]Info, familyInfoMap map[string]FamilyInfo, workDir, pipeline string) (c int) {
+	infoMap map[string]*Info, familyInfoMap map[string]FamilyInfo, workDir, pipeline string) (c int) {
 	for probandID, familyInfo := range familyInfoMap {
 		c++
 		var job = step.CreateTrioJob(infoMap[probandID], familyInfo, workDir, pipeline, probandID)
@@ -225,7 +225,7 @@ func (step *Step) CreateTrioJobs(
 	return
 }
 
-func (step *Step) CreateTrioJob(info Info, familyInfo FamilyInfo, workDir, pipeline, sampleID string) Job {
+func (step *Step) CreateTrioJob(info *Info, familyInfo FamilyInfo, workDir, pipeline, sampleID string) Job {
 	var job = NewJob(
 		filepath.Join(
 			workDir, sampleID, "shell",
