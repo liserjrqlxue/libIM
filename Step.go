@@ -115,7 +115,9 @@ func (step *Step) CreateLaneJobs(
 func (step *Step) CreateLaneJob(lane LaneInfo, workDir, pipeline, sampleID string) Job {
 	var job = NewJob(
 		filepath.Join(
-			workDir, sampleID, "shell",
+			workDir,
+			"shell",
+			sampleID,
 			strings.Join([]string{step.Name, lane.LaneName, "sh"}, "."),
 		),
 		step.Memory,
@@ -169,7 +171,9 @@ func (step *Step) CreateSampleJobs(
 func (step *Step) CreateSampleJob(info *Info, workDir, pipeline, sampleID string) Job {
 	var job = NewJob(
 		filepath.Join(
-			workDir, sampleID, "shell",
+			workDir,
+			"shell",
+			sampleID,
 			strings.Join([]string{step.Name, "sh"}, "."),
 		),
 		step.Memory,
@@ -228,7 +232,9 @@ func (step *Step) CreateTrioJobs(
 func (step *Step) CreateTrioJob(info *Info, familyInfo FamilyInfo, workDir, pipeline, sampleID string) Job {
 	var job = NewJob(
 		filepath.Join(
-			workDir, sampleID, "shell",
+			workDir,
+			"shell",
+			sampleID,
 			strings.Join([]string{step.Name, "sh"}, "."),
 		),
 		step.Memory,
@@ -257,7 +263,9 @@ func (step *Step) CreateTrioJob(info *Info, familyInfo FamilyInfo, workDir, pipe
 func (step *Step) CreateBatchJob(workDir, pipeline string) (c int) {
 	var job = NewJob(
 		filepath.Join(
-			workDir, "shell",
+			workDir,
+			"shell",
+			"batch",
 			strings.Join([]string{step.Name, "sh"}, "."),
 		),
 		step.Memory,
