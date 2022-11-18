@@ -182,7 +182,7 @@ func (step *Step) CreateSampleJob(info *Info, workDir, pipeline, sampleID string
 	job.Id = sampleID
 	job.SubmitArgs = step.submitArgs
 
-	var args = []string{workDir, pipeline, sampleID}
+	var args = []string{workDir, pipeline, Assembly, sampleID}
 	for _, arg := range step.stepArgs {
 		switch arg {
 		case "laneName":
@@ -274,7 +274,7 @@ func (step *Step) CreateBatchJob(workDir, pipeline string) (c int) {
 	job.Id = step.Name
 	job.SubmitArgs = step.submitArgs
 
-	var args = []string{workDir, pipeline}
+	var args = []string{workDir, pipeline, Assembly}
 	for _, arg := range step.stepArgs {
 		switch arg {
 		case "laneInput":
